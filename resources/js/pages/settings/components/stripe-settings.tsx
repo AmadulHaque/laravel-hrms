@@ -17,7 +17,7 @@ export default function StripeSettings() {
     testMode: true,
     publishableKey: 'pk_test_51AbCdEfGhIjKlMnOpQrStUvWxYz12345678901234',
     secretKey: 'sk_test_51AbCdEfGhIjKlMnOpQrStUvWxYz12345678901234',
-    webhookSecret: 'whsec_1234567890abcdefghijklmnopqrstuvwxyz1234'
+    webhookSecret: 'test_whsec_1234567890abcdefghijklmnopqrstuvwxyz1234'
   });
 
   // Password visibility state
