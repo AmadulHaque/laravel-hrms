@@ -42,89 +42,55 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
-        // Skip database queries during installation
-        if ($request->is('install/*') || $request->is('update/*') || !file_exists(storage_path('installed'))) {
-            // Get available languages even during installation
-            $languagesFile = resource_path('lang/language.json');
-            $availableLanguages = [];
-            if (file_exists($languagesFile)) {
-                $availableLanguages = json_decode(file_get_contents($languagesFile), true) ?? [];
-            }
-            $globalSettings = [
+        // Get system settings
+        $settings = settings();
+        // Get currency symbol
+        $currencyCode = $settings['defaultCurrency'] ?? 'USD';
+        $currency = Currency::where('code', $currencyCode)->first();
+        $currencySettings = [];
+        if ($currency) {
+            $currencySettings = [
+                'currencySymbol' => $currency->symbol,
+                'currencyNname' => $currency->name,
+            ];
+        } else {
+            $currencySettings = [
                 'currencySymbol' => '$',
                 'currencyNname' => 'US Dollar',
-                'base_url' => config('app.url'),
-                'image_url' => config('app.url'),
-                'is_demo' => config('app.is_demo', false),
-                'is_saas' => isSaas(),
-                'availableLanguages' => $availableLanguages,
             ];
-
-            $companySlug = '';
-            $checkUser = Auth::user();
-            if ($checkUser && $checkUser->hasRole('company')) {
-                $companySlug = Auth::user()->slug ?? '';
-            } else {
-                $authUser = Auth::user();
-                if ($authUser) {
-                    $getCompanyId = getCompanyId($authUser->id);
-                    $getUser = Auth::user()->where('id', $getCompanyId)->first();
-                    if ($getUser) {
-                        $companySlug = $getUser->slug;
-                    }
-                }
-
-            }
-        } else {
-            // Get system settings
-            $settings = settings();
-            // Get currency symbol
-            $currencyCode = $settings['defaultCurrency'] ?? 'USD';
-            $currency = Currency::where('code', $currencyCode)->first();
-            $currencySettings = [];
-            if ($currency) {
-                $currencySettings = [
-                    'currencySymbol' => $currency->symbol,
-                    'currencyNname' => $currency->name,
-                ];
-            } else {
-                $currencySettings = [
-                    'currencySymbol' => '$',
-                    'currencyNname' => 'US Dollar',
-                ];
-            }
-
-            // Get available languages
-            $languagesFile = resource_path('lang/language.json');
-            $availableLanguages = [];
-            if (file_exists($languagesFile)) {
-                $availableLanguages = json_decode(file_get_contents($languagesFile), true) ?? [];
-            }
-
-            // Merge currency settings with other settings
-            $globalSettings = array_merge($settings, $currencySettings);
-            $globalSettings['base_url'] = config('app.url');
-            $globalSettings['image_url'] = config('app.url');
-            $globalSettings['is_demo'] = config('app.is_demo');
-            $globalSettings['is_saas'] = isSaas();
-            $globalSettings['availableLanguages'] = $availableLanguages;
-
-            $companySlug = '';
-            $checkUser = Auth::user();
-            if ($checkUser && $checkUser->hasRole('company')) {
-                $companySlug = Auth::user()->slug ?? '';
-            } else {
-                $authUser = Auth::user();
-                if ($authUser) {
-                    $getCompanyId = getCompanyId($authUser->id);
-                    $getUser = Auth::user()->where('id', $getCompanyId)->first();
-                    if ($getUser) {
-                        $companySlug = $getUser->slug;
-                    }
-                }
-
-            }
         }
+
+        // Get available languages
+        $languagesFile = resource_path('lang/language.json');
+        $availableLanguages = [];
+        if (file_exists($languagesFile)) {
+            $availableLanguages = json_decode(file_get_contents($languagesFile), true) ?? [];
+        }
+
+        // Merge currency settings with other settings
+        $globalSettings = array_merge($settings, $currencySettings);
+        $globalSettings['base_url'] = config('app.url');
+        $globalSettings['image_url'] = config('app.url');
+        $globalSettings['is_demo'] = config('app.is_demo');
+        $globalSettings['is_saas'] = isSaas();
+        $globalSettings['availableLanguages'] = $availableLanguages;
+
+        $companySlug = '';
+        $checkUser = Auth::user();
+        if ($checkUser && $checkUser->hasRole('company')) {
+            $companySlug = Auth::user()->slug ?? '';
+        } else {
+            $authUser = Auth::user();
+            if ($authUser) {
+                $getCompanyId = getCompanyId($authUser->id);
+                $getUser = Auth::user()->where('id', $getCompanyId)->first();
+                if ($getUser) {
+                    $companySlug = $getUser->slug;
+                }
+            }
+
+        }
+        
 
         return [
             ...parent::share($request),

@@ -20,7 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->encryptCookies(except: ['appearance']);
 
         $middleware->web(append: [
-            CheckInstallation::class,
             HandleAppearance::class,
             ShareGlobalSettings::class,
             HandleInertiaRequests::class,
