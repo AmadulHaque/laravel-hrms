@@ -24,16 +24,16 @@ import GoogleCalendarSettings from './components/google-calendar-settings';
 import WorkingDaysSettings from './components/working-days-settings';
 import ZektoSettings from './components/zekto-settings';
 import IpRestrictionSettings from './components/ip-restriction-settings';
+import DeviceSettings from './components/device-settings';
 import { Toaster } from '@/components/ui/toaster';
 import { useTranslation } from 'react-i18next';
-import { hasPermission } from '@/utils/permissions';
 import { useLayout } from '@/contexts/LayoutContext';
 
 export default function Settings() {
   const { t } = useTranslation();
   const { position } = useLayout();
 
-  const { systemSettings = {}, cacheSize = '0.00', timezones = {}, dateFormats = {}, timeFormats = {}, paymentSettings = {}, webhooks = [], auth = {}, globalSettings = {}, zektoSettings = {} } = usePage().props as any;
+  const { systemSettings = {}, cacheSize = '0.00', timezones = {}, dateFormats = {}, timeFormats = {}, paymentSettings = {}, webhooks = [], auth = {}, globalSettings = {}, zektoSettings = {}, devices = [] } = usePage().props as any;
   const isSaas = globalSettings?.is_saas;
   const [activeSection, setActiveSection] = useState('system-settings');
 
@@ -79,6 +79,12 @@ export default function Settings() {
       title: t('Zekto Settings'),
       href: '#zekto-settings',
       icon: <Fingerprint className="h-4 w-4 mr-2" />,
+      permission: 'manage-biomatric-attedance-settings'
+    },
+    {
+      title: t('Device Settings'),
+      href: '#device-settings',
+      icon: <HardDrive className="h-4 w-4 mr-2" />,
       permission: 'manage-biomatric-attedance-settings'
     },
     {
@@ -185,6 +191,7 @@ export default function Settings() {
   const googleCalendarSettingsRef = useRef<HTMLDivElement>(null);
   const googleWalletSettingsRef = useRef<HTMLDivElement>(null);
   const zektoSettingsRef = useRef<HTMLDivElement>(null);
+  const deviceSettingsRef = useRef<HTMLDivElement>(null);
   const ipRestrictionSettingsRef = useRef<HTMLDivElement>(null);
 
 
@@ -211,6 +218,7 @@ export default function Settings() {
       const googleCalendarSettingsPosition = googleCalendarSettingsRef.current?.offsetTop || 0;
       const googleWalletSettingsPosition = googleWalletSettingsRef.current?.offsetTop || 0;
       const zektoSettingsPosition = zektoSettingsRef.current?.offsetTop || 0;
+      const deviceSettingsPosition = deviceSettingsRef.current?.offsetTop || 0;
       const ipRestrictionSettingsPosition = ipRestrictionSettingsRef.current?.offsetTop || 0;
 
       // Determine active section based on scroll position
@@ -220,11 +228,7 @@ export default function Settings() {
       //  if (scrollPosition >= webhookSettingsPosition) {
       //   setActiveSection('webhook-settings');
       // } 
-      if (scrollPosition >= zektoSettingsPosition) {
-        setActiveSection('zekto-settings');
-      } else if (scrollPosition >= ipRestrictionSettingsPosition) {
-        setActiveSection('ip-restriction-settings');
-      } else if (scrollPosition >= cacheSettingsPosition) {
+      if (scrollPosition >= cacheSettingsPosition) {
         setActiveSection('cache-settings');
       } else if (scrollPosition >= seoSettingsPosition) {
         setActiveSection('seo-settings');
@@ -238,6 +242,12 @@ export default function Settings() {
         setActiveSection('storage-settings');
       } else if (scrollPosition >= paymentSettingsPosition) {
         setActiveSection('payment-settings');
+      } else if (scrollPosition >= deviceSettingsPosition) {
+        setActiveSection('device-settings');
+      } else if (scrollPosition >= zektoSettingsPosition) {
+        setActiveSection('zekto-settings');
+      } else if (scrollPosition >= ipRestrictionSettingsPosition) {
+        setActiveSection('ip-restriction-settings');
       } else if (scrollPosition >= workingDaysSettingsPosition) {
         setActiveSection('working-days-settings');
       } else if (scrollPosition >= emailSettingsPosition) {
@@ -283,6 +293,7 @@ export default function Settings() {
   return (
     <PageTemplate
       title={t('Settings')}
+      description={t('Manage application and integration settings')}
       url="/settings"
       breadcrumbs={[
         { title: t('Dashboard'), href: route('dashboard') },
@@ -295,20 +306,24 @@ export default function Settings() {
         <div className="md:w-64 flex-shrink-0">
           <div className="sticky top-20">
             <ScrollArea className="h-[calc(100vh-5rem)]">
-              <div className={`space-y-1 ${position === 'rtl' ? 'pl-4' : 'pr-4'}`}>
-                {sidebarNavItems.map((item) => (
-                  <Button
-                    key={item.href}
-                    variant="ghost"
-                    className={cn('w-full justify-start', {
-                      'bg-muted font-medium': activeSection === item.href.replace('#', ''),
-                    })}
-                    onClick={() => handleNavClick(item.href)}
-                  >
-                    {item.icon}
-                    {item.title}
-                  </Button>
-                ))}
+              <div className={`space-y-1 ${position === 'right' ? 'pl-4' : 'pr-4'}`}>
+                {sidebarNavItems.map((item) => {
+                  const href = item.href ?? '#';
+
+                  return (
+                    <Button
+                      key={href}
+                      variant="ghost"
+                      className={cn('w-full justify-start', {
+                        'bg-muted font-medium': activeSection === href.replace('#', ''),
+                      })}
+                      onClick={() => handleNavClick(href)}
+                    >
+                      {item.icon}
+                      {item.title}
+                    </Button>
+                  );
+                })}
               </div>
             </ScrollArea>
           </div>
@@ -370,6 +385,13 @@ export default function Settings() {
           {auth.user?.type === 'company' && (auth.permissions?.includes('manage-biomatric-attedance-settings')) && (
             <section id="zekto-settings" ref={zektoSettingsRef} className="mb-8">
               <ZektoSettings settings={zektoSettings} />
+            </section>
+          )}
+
+          {/* Device Settings Section */}
+          {auth.user?.type === 'company' && (auth.permissions?.includes('manage-biomatric-attedance-settings')) && (
+            <section id="device-settings" ref={deviceSettingsRef} className="mb-8">
+              <DeviceSettings devices={devices} />
             </section>
           )}
 

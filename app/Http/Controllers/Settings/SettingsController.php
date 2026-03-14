@@ -10,6 +10,7 @@ use App\Models\Currency;
 use App\Models\PaymentSetting;
 use App\Models\Webhook;
 use App\Models\IpRestriction;
+use App\Models\ZKTeco\Device;
 
 class SettingsController extends Controller
 {
@@ -26,6 +27,7 @@ class SettingsController extends Controller
         $paymentSettings = PaymentSetting::getUserSettings(auth()->id());
         $webhooks = Webhook::where('user_id', auth()->id())->get();
         $ipRestrictions = IpRestriction::whereIn('created_by', getCompanyAndUsersId())->orderBy('id','desc')->get();
+        $devices = Device::whereIn('created_by', getCompanyAndUsersId())->orderBy('id', 'desc')->get();
 
         // Get Zekto settings for company users
         $zektoSettings = [];
@@ -49,6 +51,7 @@ class SettingsController extends Controller
             'webhooks' => $webhooks,
             'zektoSettings' => $zektoSettings,
             'ipRestrictions' => $ipRestrictions,
+            'devices' => $devices,
         ]);
     }
 }
