@@ -43,8 +43,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(
             except: [
-                'install/*',
-                'update/*',
                 'cashfree/create-session',
                 'cashfree/webhook',
                 'ozow/create-payment',
@@ -57,6 +55,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 'payments/benefit/callback',
                 'payments/paytabs/callback',
                 'api/media/batch',
+                'iclock/cdata',
             ],
         );
 

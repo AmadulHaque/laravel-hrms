@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ZKTeco;
 
+use App\Cache\ZKTecoCache;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ZKTeco\StoreDeviceRequest;
 use App\Http\Requests\ZKTeco\UpdateDeviceRequest;
@@ -21,7 +22,7 @@ class DeviceController extends Controller
     {
         try {
             $this->deviceService->create($request->validated());
-
+            ZKTecoCache::invalidate();
             return redirect()->back()->with('success', __('Device added successfully.'));
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', __('Something went wrong. Please try again.'));
@@ -32,7 +33,7 @@ class DeviceController extends Controller
     {
         try {
             $this->deviceService->update($device, $request->validated());
-
+            ZKTecoCache::invalidate();
             return redirect()->back()->with('success', __('Device updated successfully.'));
         } catch (AuthorizationException $th) {
             return redirect()->back()->with('error', __('Permission denied.'));
@@ -45,7 +46,7 @@ class DeviceController extends Controller
     {
         try {
             $this->deviceService->delete($device);
-
+            ZKTecoCache::invalidate();
             return redirect()->back()->with('success', __('Device deleted successfully.'));
         } catch (AuthorizationException $th) {
             return redirect()->back()->with('error', __('Permission denied.'));

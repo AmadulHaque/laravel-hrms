@@ -19,10 +19,8 @@ return new class extends Migration
             $table->string('device_ip')->nullable();
             $table->integer('user_total_qty')->nullable();
             $table->integer('command_total_count')->nullable();
-            $table->integer('request_heartbeat_seconds')->nullable();
             $table->integer('status')->default(0);
             $table->integer('created_by')->nullable();
-            $table->timestamp('heartbeat_status_at')->nullable();
             $table->timestamps();
         });
     }

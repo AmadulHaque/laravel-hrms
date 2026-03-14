@@ -17,7 +17,7 @@ Route::middleware(['auth', 'verified', 'plan.access', 'permission:manage-biomatr
 
 Route::controller(ZKTecoController::class)->group(function () {
 
-    Route::get('/iclock/getrequest', 'getrequest');
+    Route::get('/iclock/getrequest', 'getRequest');
     Route::get('/iclock/ping', 'ping');
     Route::post('/iclock/cdata', 'cdata');
     Route::get('/iclock/cdata', 'getCdata');

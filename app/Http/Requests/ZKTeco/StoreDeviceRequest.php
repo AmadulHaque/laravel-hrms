@@ -29,7 +29,6 @@ class StoreDeviceRequest extends FormRequest
             ],
             'area_id' => ['nullable', 'string', 'max:255'],
             'device_ip' => ['nullable', 'ip'],
-            'request_heartbeat_seconds' => ['nullable', 'integer', 'min:1', 'max:86400'],
             'status' => ['required', 'integer', Rule::in([0, 1])],
         ];
     }

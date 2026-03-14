@@ -15,6 +15,7 @@ class DeviceService
         return Device::create($data);
     }
 
+
     public function update(Device $device, array $data): Device
     {
         $this->ensureCompanyAccess($device);

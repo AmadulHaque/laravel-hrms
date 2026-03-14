@@ -2,30 +2,49 @@
 
 namespace App\Http\Controllers\ZKTeco;
 
+use App\Cache\ZKTecoCache;
+use App\DTOs\IclockAttendanceDTO;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ZKTecoController extends Controller
 {
 
-    public function getrequest()
+    public function getRequest()
     {
-        info('ICLOCK getrequest', request()->all());
+        try {
+            if(request()->SN && !blank(request()->SN)){
+
+                $isOnline = ZKTecoCache::findBySerialNumber(request()->SN);
+                if($isOnline){
+                    ZKTecoCache::deviceHeartbeatStatus(request()->SN);
+                }
+            }
+        } catch (\Throwable $th) {
+            Log::error('ICLOCK getRequest error', ['error' => $th->getMessage()]);
+        }
+
         return response("OK", 200)->header('Content-Type', 'text/plain');
     }
 
 
-
     public function cdata(Request $request)
     {
-        info('ICLOCK  cdata all', [$request->all()]);
-        info('ICLOCK  cdata ', [$request->getContent()]);
+
+        $raw = trim($request->getContent());
+
+        if (!IclockAttendanceDTO::isSkippablePayload($raw)) {
+            $result =IclockAttendanceDTO::fromRaw($raw);
+            info('ICLOCK  cdata result', [$result,request()->SN]);
+        }
+
+
         return response("OK", 200)->header('Content-Type', 'text/plain');
     }
 
     public function getCdata()
     {
-        info('ICLOCK getCdata', request()->all());
         return response(
             "Stamp=9999\n".
             "OpStamp=1\n".
@@ -40,11 +59,15 @@ class ZKTecoController extends Controller
         );
     }
 
-
     public function ping()
     {
-        info('ICLOCK ping', request()->all());
-        return response("OK", 200);
+        if(request()->SN && !blank(request()->SN)){
+            $isOnline = ZKTecoCache::findBySerialNumber(request()->SN);
+            if($isOnline){
+                ZKTecoCache::deviceHeartbeatStatus(request()->SN);
+            }
+        }
+        return response("OK", 200)->header('Content-Type', 'text/plain');
     }
 
 }

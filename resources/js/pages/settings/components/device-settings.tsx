@@ -17,7 +17,6 @@ interface Device {
   serial_number?: string | null;
   area_id?: string | null;
   device_ip?: string | null;
-  request_heartbeat_seconds?: number | null;
   status: number;
   heartbeat_status: boolean;
 }
@@ -62,7 +61,6 @@ export default function DeviceSettings({ devices = [] }: DeviceSettingsProps) {
       serial_number: formData.serial_number || null,
       area_id: formData.area_id || null,
       device_ip: formData.device_ip || null,
-      request_heartbeat_seconds: formData.request_heartbeat_seconds || null,
       status: Number(formData.status),
     };
 
@@ -247,13 +245,6 @@ export default function DeviceSettings({ devices = [] }: DeviceSettingsProps) {
               type: 'text',
               required: false,
               placeholder: t('Area-01')
-            },
-            {
-              name: 'request_heartbeat_seconds',
-              label: t('Heartbeat Interval (seconds)'),
-              type: 'number',
-              required: false,
-              placeholder: '30'
             },
             {
               name: 'status',
